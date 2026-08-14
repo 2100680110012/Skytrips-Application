@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkyTrips Hub — Flights, Cabs & Airport Hotels (Python Stack)</title>
+  <meta name="description" content="Book 10,000+ flights, 5,000+ airport cabs, and 5,000+ nearby hotels with synchronized Python Flask backend.">
+  
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Custom Glassmorphism Styling -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="navbar-header">
+    <div class="header-container max-width">
+      
+      <!-- Brand Logo -->
+      <div class="brand-logo" id="logo-btn">
+        <div class="logo-icon">✈</div>
+        <div class="logo-text">
+          <div class="brand-title">SkyTrips <span class="badge-tag">PYTHON HUB</span></div>
+          <div class="brand-sub">Integrated Flights, Cabs & Hotels</div>
+        </div>
+      </div>
+
+      <!-- Connected Navigation Pushbuttons -->
+      <nav class="nav-pushbuttons">
+        <button class="nav-btn active" data-tab="flights" id="nav-btn-flights">
+          <span class="btn-icon">✈</span> Flights
+          <span class="count-pill pill-blue" id="pill-flights-count">10.5k+</span>
+        </button>
+
+        <button class="nav-btn" data-tab="cabs" id="nav-btn-cabs">
+          <span class="btn-icon">🚖</span> Airport Cabs
+          <span class="count-pill pill-cyan" id="pill-cabs-count">5.2k+</span>
+        </button>
+
+        <button class="nav-btn" data-tab="hotels" id="nav-btn-hotels">
+          <span class="btn-icon">🏨</span> Nearby Hotels
+          <span class="count-pill pill-amber" id="pill-hotels-count">5.2k+</span>
+        </button>
+      </nav>
+
+      <!-- Right Action / Itinerary Pushbutton -->
+      <div class="header-actions">
+        <button class="btn-itinerary" data-tab="itinerary" id="nav-btn-itinerary">
+          <span class="btn-icon">📋</span> My Trip
+          <span class="cart-badge hidden" id="cart-badge-count">0</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Contextual Flight Selection Pushbutton Banner -->
+    <div id="selection-banner" class="selection-banner max-width hidden">
+      <div class="banner-info">
+        <span class="check-icon">✓</span>
+        <span id="banner-text">Flight Selected: AI-101 to Tokyo HND</span>
+      </div>
+      <div class="banner-pushbuttons">
+        <button class="btn-pushbutton" id="btn-banner-cab">🚖 Book Cab at HND</button>
+        <button class="btn-pushbutton" id="btn-banner-hotel">🏨 Book Hotel near HND</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-content max-width">
+
+    <!-- ==================== 1. FLIGHTS SECTION ==================== -->
+    <section id="section-flights" class="tab-section active">
+      
+      <!-- Hero Banner & Form -->
+      <div class="hero-card glass-panel">
+        <div class="hero-header">
+          <span class="hero-tag">✈ 10,000+ REAL-TIME KAGGLE FLIGHTS INDEXED</span>
+          <h1 class="hero-title">Search Global Flights & Connect Transfer Services</h1>
+          <p class="hero-desc">Explore thousands of international routes served by Python SQLite REST API. Book your flight and instantly reserve cabs or hotels.</p>
+        </div>
+
+        <!-- Trip Type Selector -->
+        <div style="margin-bottom:0.75rem; display:flex; align-items:center; gap:1.5rem;">
+          <label class="checkbox-label" style="font-weight:600; color:white; cursor:pointer;">
+            <input type="checkbox" id="flight-roundtrip" style="width:16px; height:16px; accent-color:#3b82f6;">
+            <span>🔄 Round Trip (Two-Way Flight)</span>
+          </label>
+          <span style="font-size:0.75rem; color:#94a3b8;" id="trip-type-label">One-Way Flight Selected</span>
+        </div>
+
+        <!-- Filter Search Bar -->
+        <div class="filter-bar grid-5" id="flight-filter-bar">
+          <div class="form-group">
+            <label>From (Origin City / Airport)</label>
+            <div class="autocomplete-wrapper">
+              <input type="text" id="flight-origin-text" placeholder="Type city or airport (e.g. Delhi, DEL, Ayodhya)..." class="input-control font-semibold" autocomplete="off">
+              <input type="hidden" id="flight-origin">
+              <div id="flight-origin-results" class="autocomplete-dropdown hidden"></div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>To (Destination City / Airport)</label>
+            <div class="autocomplete-wrapper">
+              <input type="text" id="flight-dest-text" placeholder="Type destination (e.g. Mumbai, BOM, Goa)..." class="input-control font-semibold" autocomplete="off">
+              <input type="hidden" id="flight-destination">
+              <div id="flight-dest-results" class="autocomplete-dropdown hidden"></div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Departure Date</label>
+            <input type="date" id="flight-date" class="input-control font-semibold">
+          </div>
+
+
+          <div class="form-group hidden" id="group-return-date">
+            <label style="color:#60a5fa;">Return Date (Two-Way)</label>
+            <input type="date" id="flight-return-date" class="input-control font-semibold" style="border-color:#3b82f6;">
+          </div>
+
+          <div class="form-group">
+            <label>Cabin Class</label>
+            <select id="flight-cabin" class="select-control">
+              <option value="All">All Cabin Classes</option>
+              <option value="Economy">Economy</option>
+              <option value="Premium Economy">Premium Economy</option>
+              <option value="Business">Business Class</option>
+              <option value="First Class">First Class</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Sort Results By</label>
+            <select id="flight-sort" class="select-control">
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+              <option value="duration_asc">Shortest Duration</option>
+              <option value="departure_asc">Earliest Departure</option>
+            </select>
+          </div>
+        </div>
+
+
+      </div>
+
+      <!-- Main Results Layout -->
+      <div class="results-layout grid-sidebar">
+        
+        <!-- Sidebar -->
+        <aside class="sidebar-panel glass-panel">
+          <div class="sidebar-header">
+            <h3>Filter Results</h3>
+            <button id="btn-reset-flights" class="btn-text">Reset All</button>
+          </div>
+
+          <div class="sidebar-group">
+            <div class="slider-label">
+              <span>Max Ticket Price</span>
+              <strong id="price-val">₹75,000</strong>
+            </div>
+            <input type="range" id="flight-max-price" min="2500" max="75000" step="500" value="75000" class="range-slider">
+          </div>
+
+
+          <div class="sidebar-group">
+            <label class="label-title">Stops / Connections</label>
+            <div class="stops-selector">
+              <button class="btn-stop active" data-stop="all">All</button>
+              <button class="btn-stop" data-stop="0">Direct</button>
+              <button class="btn-stop" data-stop="1">1 Stop</button>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Flights List -->
+        <div class="list-container">
+          <div class="results-meta">
+            <span id="flights-meta-count">Loading matching flights...</span>
+            <span id="flights-page-info">Page 1 of 1</span>
+          </div>
+
+          <div id="flights-cards-grid" class="cards-stack">
+            <!-- Dynamic Flight Cards Rendered Here -->
+          </div>
+
+          <div class="pagination-bar" id="flights-pagination">
+            <!-- Pagination Controls Rendered Here -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== 2. CABS SECTION ==================== -->
+    <section id="section-cabs" class="tab-section hidden">
+      
+      <div class="hero-card glass-panel hero-cabs">
+        <div class="hero-header">
+          <span class="hero-tag tag-cyan">🚖 5,000+ AIRPORT CABS & SHUTTLES READY</span>
+          <h1 class="hero-title">Airport Transfer Cabs & Private Rides</h1>
+          <p class="hero-desc">Pre-book verified airport driver transfers across all 35 airport hubs connected to your arrival flight.</p>
+        </div>
+
+        <div class="filter-bar grid-4">
+          <div class="form-group">
+            <label>Airport Hub</label>
+            <select id="cab-airport" class="select-control">
+              <option value="">All Airports (5,000+ Cabs)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Vehicle Category</label>
+            <select id="cab-type" class="select-control">
+              <option value="All">All Vehicle Classes</option>
+              <option value="Economy Sedan">Economy Sedan</option>
+              <option value="Executive SUV">Executive SUV</option>
+              <option value="Electric Luxury">Electric Luxury</option>
+              <option value="Airport Shuttle">Airport Express Shuttle</option>
+              <option value="Shared Van">Shared Van</option>
+              <option value="VIP Limousine">VIP Limousine</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Passenger Capacity</label>
+            <select id="cab-passengers" class="select-control">
+              <option value="1">1 Passenger</option>
+              <option value="2">2 Passengers</option>
+              <option value="4">4 Passengers</option>
+              <option value="6">6+ Passengers</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Sort By</label>
+            <select id="cab-sort" class="select-control">
+              <option value="price_asc">Lowest Base Fare</option>
+              <option value="rating_desc">Highest Driver Rating</option>
+              <option value="wait_asc">Fastest Pickup (Min ETA)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="results-layout grid-sidebar">
+        <aside class="sidebar-panel glass-panel">
+          <div class="sidebar-header">
+            <h3>Filter Cabs</h3>
+            <button id="btn-reset-cabs" class="btn-text">Reset All</button>
+          </div>
+
+          <div class="sidebar-group">
+            <div class="slider-label">
+              <span>Max Base Fare</span>
+              <strong id="cab-fare-val">$200</strong>
+            </div>
+            <input type="range" id="cab-max-fare" min="10" max="200" step="5" value="200" class="range-slider">
+          </div>
+        </aside>
+
+        <div class="list-container">
+          <div class="results-meta">
+            <span id="cabs-meta-count">Loading available cabs...</span>
+            <span id="cabs-page-info">Page 1 of 1</span>
+          </div>
+
+          <div id="cabs-cards-grid" class="cards-grid-2">
+            <!-- Dynamic Cab Cards Rendered Here -->
+          </div>
+
+          <div class="pagination-bar" id="cabs-pagination"></div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ==================== 3. HOTELS SECTION ==================== -->
+    <section id="section-hotels" class="tab-section hidden">
+      
+      <div class="hero-card glass-panel hero-hotels">
+        <div class="hero-header">
+          <span class="hero-tag tag-amber">🏨 5,000+ NEARBY AIRPORT HOTELS INDEXED</span>
+          <h1 class="hero-title">Hotels Located Near International Airports</h1>
+          <p class="hero-desc">Book top-rated transit hotels positioned within minutes of airport terminals. Enjoy free 24/7 airport express shuttles and soundproof suites.</p>
+        </div>
+
+        <div class="filter-bar grid-4">
+          <div class="form-group">
+            <label>Near Airport Code</label>
+            <select id="hotel-airport" class="select-control">
+              <option value="">All Airports (5,000+ Hotels)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Max Distance to Terminal</label>
+            <select id="hotel-distance" class="select-control">
+              <option value="2">Within 2 km (Terminal Walk)</option>
+              <option value="5">Within 5 km</option>
+              <option value="10">Within 10 km</option>
+              <option value="20">Within 20 km (City Vicinity)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Min Star Rating</label>
+            <select id="hotel-stars" class="select-control">
+              <option value="3">3+ Stars</option>
+              <option value="4">4+ Stars</option>
+              <option value="5">5 Star Luxury</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Sort By</label>
+            <select id="hotel-sort" class="select-control">
+              <option value="distance_asc">Closest to Terminal First</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="score_desc">Highest Guest Review Score</option>
+              <option value="rating_desc">Highest Star Rating</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="results-layout grid-sidebar">
+        <aside class="sidebar-panel glass-panel">
+          <div class="sidebar-header">
+            <h3>Filter Hotels</h3>
+            <button id="btn-reset-hotels" class="btn-text">Reset All</button>
+          </div>
+
+          <div class="sidebar-group">
+            <div class="slider-label">
+              <span>Max Price / Night</span>
+              <strong id="hotel-price-val">$1,000</strong>
+            </div>
+            <input type="range" id="hotel-max-price" min="50" max="1000" step="25" value="1000" class="range-slider">
+          </div>
+
+          <div class="sidebar-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="hotel-shuttle-only">
+              <span>Free 24/7 Airport Shuttle Only</span>
+            </label>
+          </div>
+        </aside>
+
+        <div class="list-container">
+          <div class="results-meta">
+            <span id="hotels-meta-count">Loading airport hotels...</span>
+            <span id="hotels-page-info">Page 1 of 1</span>
+          </div>
+
+          <div id="hotels-cards-grid" class="cards-grid-2">
+            <!-- Dynamic Hotel Cards Rendered Here -->
+          </div>
+
+          <div class="pagination-bar" id="hotels-pagination"></div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ==================== 4. ITINERARY SECTION ==================== -->
+    <section id="section-itinerary" class="tab-section hidden">
+      
+      <div class="hero-card glass-panel hero-itinerary flex-between">
+        <div>
+          <span class="hero-tag tag-indigo">📋 UNIFIED ITINERARY & BOARDING PASSES</span>
+          <h1 class="hero-title">My Confirmed Bookings & E-Tickets</h1>
+          <p class="hero-desc">Synchronized Flight Boarding Passes, Airport Cab Vouchers, and Hotel Reservations stored via Python backend database.</p>
+        </div>
+
+        <div id="itinerary-summary" class="itinerary-summary hidden">
+          <div class="summary-label">Grand Total</div>
+          <div class="summary-total" id="itinerary-grand-total">$0</div>
+        </div>
+      </div>
+
+      <div id="itinerary-content" class="itinerary-stack">
+        <!-- Rendered Booking Cards -->
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ==================== MODAL DIALOGS ==================== -->
+
+  <!-- Flight Seat Selection Modal -->
+  <div id="modal-seat" class="modal-overlay hidden">
+    <div class="modal-card glass-panel">
+      <div class="modal-header">
+        <div>
+          <h2 id="modal-flight-title">Select Seats & Confirm Flight</h2>
+          <p id="modal-flight-sub" class="modal-sub">Flight Route Info</p>
+        </div>
+        <button class="btn-close" id="btn-close-seat-modal">✕</button>
+      </div>
+
+      <div class="modal-body grid-modal">
+        <!-- Seat Map -->
+        <div class="seat-map-container">
+          <div class="cockpit-indicator">▲ COCKPIT / FRONT OF AIRCRAFT ▲</div>
+          <div id="seat-grid" class="seat-grid">
+            <!-- Dynamic Seats -->
+          </div>
+          <div class="seat-legend">
+            <span><span class="seat-box seat-selected"></span> Selected</span>
+            <span><span class="seat-box seat-avail"></span> Available</span>
+            <span><span class="seat-box seat-taken"></span> Occupied</span>
+          </div>
+        </div>
+
+        <!-- Passenger Info & Submit -->
+        <form id="form-book-flight" class="passenger-form">
+          <h3>Passenger Details</h3>
+          
+          <div class="form-group">
+            <label>Full Legal Name</label>
+            <input type="text" id="pass-name" required value="Gaurav Kumar" class="input-control">
+          </div>
+
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="pass-email" required value="gaurav@example.com" class="input-control">
+          </div>
+
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" id="pass-phone" required value="+1 (555) 234-5678" class="input-control">
+          </div>
+
+          <div class="fare-box">
+            <span>Total Ticket Fare:</span>
+            <strong id="modal-flight-price" class="fare-amount">$0</strong>
+          </div>
+
+          <button type="submit" class="btn-primary w-full py-3">Confirm & Book Flight Ticket</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cab Booking Modal -->
+  <div id="modal-cab" class="modal-overlay hidden">
+    <div class="modal-card glass-panel modal-sm">
+      <div class="modal-header">
+        <div>
+          <h2 id="modal-cab-title">Reserve Airport Cab Transfer</h2>
+          <p id="modal-cab-sub" class="modal-sub">Driver & Vehicle Info</p>
+        </div>
+        <button class="btn-close" id="btn-close-cab-modal">✕</button>
+      </div>
+
+      <form id="form-book-cab" class="modal-body space-y-4">
+        <div class="form-group">
+          <label>Pickup Location / Terminal</label>
+          <input type="text" id="cab-pickup-loc" required class="input-control">
+        </div>
+
+        <div class="form-group">
+          <label>Dropoff Address / Hotel</label>
+          <input type="text" id="cab-dropoff-loc" required class="input-control">
+        </div>
+
+        <div class="form-group">
+          <label>Rider Name</label>
+          <input type="text" id="cab-pass-name" required value="Gaurav Kumar" class="input-control">
+        </div>
+
+        <div class="fare-box">
+          <span>Total Ride Fare:</span>
+          <strong id="modal-cab-fare" class="fare-amount">$0</strong>
+        </div>
+
+        <button type="submit" class="btn-primary w-full py-3">Confirm Cab Booking</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Hotel Booking Modal -->
+  <div id="modal-hotel" class="modal-overlay hidden">
+    <div class="modal-card glass-panel modal-sm">
+      <div class="modal-header">
+        <div>
+          <h2 id="modal-hotel-title">Reserve Nearby Airport Hotel</h2>
+          <p id="modal-hotel-sub" class="modal-sub">Hotel & Room Info</p>
+        </div>
+        <button class="btn-close" id="btn-close-hotel-modal">✕</button>
+      </div>
+
+      <form id="form-book-hotel" class="modal-body space-y-4">
+        <div class="form-group">
+          <label>Select Room Type</label>
+          <select id="hotel-room-type" class="select-control">
+            <option value="Deluxe King Room">Deluxe King Room ($180/night)</option>
+            <option value="Executive Transit Suite">Executive Transit Suite ($260/night)</option>
+            <option value="Presidential Runway Suite">Presidential Runway Suite ($450/night)</option>
+          </select>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Check-in Date</label>
+            <input type="date" id="hotel-checkin" required class="input-control">
+          </div>
+          <div class="form-group">
+            <label>Check-out Date</label>
+            <input type="date" id="hotel-checkout" required class="input-control">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Primary Guest Name</label>
+          <input type="text" id="hotel-pass-name" required value="Gaurav Kumar" class="input-control">
+        </div>
+
+        <div class="fare-box">
+          <span>Total Reservation Fare (2 Nights):</span>
+          <strong id="modal-hotel-fare" class="fare-amount">$0</strong>
+        </div>
+
+        <button type="submit" class="btn-primary w-full py-3">Confirm Hotel Reservation</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast hidden">
+    <span id="toast-message">Booking Confirmed!</span>
+  </div>
+
+  <!-- Main JavaScript File -->
+  <script src="/js/app.js"></script>
+</body>
+</html>
